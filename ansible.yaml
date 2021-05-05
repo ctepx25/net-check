@@ -17,6 +17,11 @@
     pause: prompt="Please choose one of the following - deploy|cleanup|terminate"
     register: arg1
 
+  - name: Remove /tmp/net-check/
+    ansible.builtin.file:
+      path: /tmp/net-check/
+      state: absent
+      
   - name: Get git repository
     git:
       repo=https://github.com/ctepx25/net-check.git
