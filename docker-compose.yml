@@ -1,0 +1,53 @@
+version: '3.0'
+services:
+  mainserver:
+    image: ubuntu-nc
+    container_name: mainserver
+    hostname: 'mainserver'
+    ports:
+      - 3043:3044
+      - 4043:4044
+    networks:
+      - local
+
+  server1:
+    image: ubuntu-nc
+    container_name: server1
+    hostname: 'server1'
+    entrypoint: init.sh 3044 
+    ports:
+      - 3045:3044
+    networks:
+      - local
+
+  server2:
+    image: ubuntu-nc
+    container_name: server2
+    hostname: 'server2'
+    entrypoint: init.sh 3044
+    ports:
+      - 3046:3044
+    networks:
+      - local
+
+  server3:
+    image: ubuntu-nc
+    container_name: server3
+    hostname: 'server3'
+    entrypoint: init.sh 4044
+    ports:
+      - 4045:4044
+    networks:
+      - local
+
+  server4:
+    image: ubuntu-nc
+    container_name: server4
+    hostname: 'server4'
+    entrypoint: init.sh 4044
+    ports:
+      - 4046:4044
+    networks:
+      - local
+networks:
+  local:

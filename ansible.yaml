@@ -1,0 +1,118 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+
+  - name: Check docker-compose installed
+    command: docker-compose -v
+    register: output
+    failed_when: "'FAILED' in output.stderr"
+
+  - name: Check git installed 
+    command: git --version
+    register: output
+    failed_when: "'FAILED' in output.stderr"
+
+  - name: Prompt
+    pause: prompt="Please choose one of the following - deploy|cleanup|terminate"
+    register: arg1
+
+  - name: Get git repository
+    git: 
+      repo=https://github.com/ctepx25/net-check.git
+      dest=/tmp/net-check
+    when: arg1.user_input == "deploy"
+
+  - name: Build image
+    command: cd /tmp/net-check && docker build ./
+    register: dockeroutput
+    when: arg1.user_input == "deploy"
+
+  - name: Create environment
+    command: docker-compose -f /tmp/net-check/docker-compose.yml up -d
+    register: dockeroutput
+    when: arg1.user_input == "deploy"  
+
+  - name: Copy filebeat.yml
+    shell: docker cp /tmp/elk/filebeat.yml nginx-filebeat:/etc/filebeat/filebeat.yml
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check mainserver => server1
+    shell: docker exec mainserver bash -c 'python3 /bin/net-check.py server1 3044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check mainserver => server2
+    shell: docker exec mainserver bash -c 'python3 /bin/net-check.py server2 3044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check mainserver => server3
+    shell: docker exec mainserver bash -c 'python3 /bin/net-check.py server1 4044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check mainserver => server4
+    shell: docker exec mainserver bash -c 'python3 /bin/net-check.py server4 4044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check server1 => mainserver
+    shell: docker exec server1 bash -c 'python3 /bin/net-check.py mainserver 3044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check server2 => mainserver
+    shell: docker exec server2 bash -c 'python3 /bin/net-check.py mainserver 3044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check server3 => mainserver
+    shell: docker exec server3 bash -c 'python3 /bin/net-check.py mainserver 4044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Check server4 => mainserver
+    shell: docker exec server4 bash -c 'python3 /bin/net-check.py mainserver 4044'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Aggregate logs
+    shell: docker exec server1 bash -c 'python3 /bin/net-check.py aggregate mainserver server1 server2 server3 server4'
+    register: output
+    when: arg1.user_input == "deploy"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Cleanup
+    shell: docker exec server1 bash -c 'python3 /bin/net-check.py cleanup'
+    register: output
+    when: arg1.user_input == "cleanup"
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
+
+  - name: Terminate environemnt
+    command: docker-compose -f /tmp/net-check/docker-compose.yml down
+    register: output
+    when: arg1.user_input == "terminate"  
+  - debug: var=output.stdout_lines
+    when: output.stdout is defined
