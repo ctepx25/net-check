@@ -14,7 +14,7 @@ services:
     image: ubuntu-nc
     container_name: server1
     hostname: 'server1'
-    entrypoint: init.sh 3044 
+    entrypoint: init.sh 3044
     ports:
       - 3045:3044
     networks:
