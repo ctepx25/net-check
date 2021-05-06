@@ -24,7 +24,7 @@ services:
     image: ubuntu-nc
     container_name: server2
     hostname: 'server2'
-    entrypoint: init.sh 3044
+    entrypoint: init.sh 3045
     ports:
       - 3046:3044
     networks:
@@ -44,7 +44,7 @@ services:
     image: ubuntu-nc
     container_name: server4
     hostname: 'server4'
-    entrypoint: init.sh 4044
+    entrypoint: init.sh 4045
     ports:
       - 4046:4044
     networks:
