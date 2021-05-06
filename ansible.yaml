@@ -14,7 +14,7 @@
     failed_when: "'FAILED' in output.stderr"
 
   - name: Prompt
-    pause: prompt="Please choose one of the following - deploy|cleanup|terminate"
+    pause: prompt="Please choose one of the following - deploy|terminate"
     register: arg1
 
   - name: Remove /tmp/net-check/
@@ -26,7 +26,7 @@
     git:
       repo=https://github.com/ctepx25/net-check.git
       dest=/tmp/net-check
-    when: arg1.user_input == "deploy"
+    when: arg1.user_input == "deploy" or arg1.user_input == "terminate"
 
   - name: Build image
     command: docker build -t ubuntu-nc /tmp/net-check/
