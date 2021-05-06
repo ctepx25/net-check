@@ -29,8 +29,11 @@ def remove_logfile(logfile,sum_file):
 def aggregate_logs(servers_list):
     f = open(sum_file, "a")
     for server in servers_list:
-        response = requests.get('http://'+server+'/netcheck.log')
-        f.write(response.text)
+        try:
+            response = requests.get('http://'+server+'/netcheck.log')
+            f.write(response.text)
+        except:
+            f.write("Failed to get log from %s [Error]\n" % (server))
     f.close()
 
 if __name__ == '__main__':
